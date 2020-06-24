@@ -42,8 +42,8 @@ RtcDS3231<TwoWire> Rtc(Wire);
 #include "WiFiUdp.h"
 #include "NTP.h"
 
-char ssid[]     = "henry";
-char password[] = "9876543210";
+char ssid[]     = "******";
+char password[] = "********";
 
 #define NTP_Update_Interval 15000  // msec
 WiFiUDP wifiUdp;
