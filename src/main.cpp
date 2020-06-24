@@ -1,3 +1,9 @@
+/*
+   Modified version of the DS3231 Simple example in the DS3231 Arduino library
+
+   mgadriver@gmail.com
+
+*/
 #include <Arduino.h>
 
 // Choose just 1 or none of the 2 below
@@ -45,7 +51,7 @@ RtcDS3231<TwoWire> Rtc(Wire);
 char ssid[]     = "******";
 char password[] = "********";
 
-#define NTP_Update_Interval 15000  // msec
+#define NTP_Update_Interval 5000  // msec
 WiFiUDP wifiUdp;
 NTP ntp(wifiUdp);
 
@@ -86,10 +92,10 @@ void setup ()
     delay(NTP_Update_Interval);
     while (!ntp.update()) {
         Serial.println("Waiting for NTP update");
-        delay(5000);
+        delay(NTP_Update_Interval);
     }
-    strcpy(ntpdate,ntp.formattedTime("%b %d %Y"));
-    strcpy(ntptime,ntp.formattedTime("%H %M %S"));
+    strcpy(ntpdate,ntp.formattedTime("%b %d %Y"));  // mmm dd YYYY like __DATE__
+    strcpy(ntptime,ntp.formattedTime("%H %M %S"));  // HH MM SS    like __TIME__
     Serial.print("NTP: " );
 #endif
 #if defined(COMPILE_TIME_SETUP) || defined(NTP_TIME_SETUP)
