@@ -1,5 +1,5 @@
 # DS3231
-## Improved version of the Arduino library DS3131 Simple example
+## Improved version of the Arduino library DS3231 Simple example
 The orginal example has a builtin flaw in that the DS3231 is initialized to the COMPILE time of the code instead of the actual time.<br>
 On my work machine the difference between compilation time and actual execution time can be around 20 seconds.<br>
 I have added the possibility of initializing the DS3231 from an NTP server.<br>
