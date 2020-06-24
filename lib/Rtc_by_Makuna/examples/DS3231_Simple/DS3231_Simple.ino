@@ -1,20 +1,4 @@
-#include <Arduino.h>
 
-// Choose just 1 or none of the 2 below
-//#define COMPILE_TIME_SETUP  // uncomment if initializing from compilation time
-//#define NTP_TIME_SETUP // uncomment to initialize from NTP server
-
-#if defined(COMPILE_TIME_SETUP) && defined(NTP_TIME_SETUP)
-#error Cannot use both kinds of initialize
-#endif
-
-/*
-   IMPORTANT The DS3231 is unaware of timezone and daylight savings time
-   When initialized it saves the given date/time and carries on, correcting for end of month/year/leap 
-   year but no more.
-   NTP knows about epoch (number of seconds since 1/1/1970 00:00 PST) and can be taught about timeone ans
-   DST so can thus format into localtime
-*/
 // CONNECTIONS:
 // DS3231 SDA --> SDA
 // DS3231 SCL --> SCL
@@ -35,27 +19,14 @@ RtcDS3231<SoftwareWire> Rtc(myWire);
 RtcDS3231<TwoWire> Rtc(Wire);
 /* for normal hardware wire use above */
 
-#ifdef NTP_TIME_SETUP
-#include <ESP8266WiFi.h>
-//#include <WiFi.h> // for WiFi shield or ESP32
-//#include <WiFi101.h> // for WiFi 101 shield or MKR1000
-#include "WiFiUdp.h"
-#include "NTP.h"
-
-char ssid[]     = "henry";
-char password[] = "9876543210";
-
-#define NTP_Update_Interval 15000  // msec
-WiFiUDP wifiUdp;
-NTP ntp(wifiUdp);
-
-#endif
-
-void printDateTime(const RtcDateTime& dt);  
 
 void setup () 
 {
     Serial.begin(57600);
+
+    Serial.print("compiled: ");
+    Serial.print(__DATE__);
+    Serial.println(__TIME__);
 
     //--------RTC SETUP ------------
     // if you are using ESP-01 then uncomment the line below to reset the pins to
@@ -63,41 +34,11 @@ void setup ()
     // Wire.begin(0, 2); // due to limited pins, use pin 0 and 2 for SDA, SCL
     
     Rtc.Begin();
-    RtcDateTime settime;
-#ifdef COMPILE_TIME_SETUP
-    settime = RtcDateTime(__DATE__, __TIME__);
-    Serial.print("Compile: " );
-    printDateTime(settime);
+
+    RtcDateTime compiled = RtcDateTime(__DATE__, __TIME__);
+    printDateTime(compiled);
     Serial.println();
-#elif defined(NTP_TIME_SETUP)
-    WiFi.begin(ssid, password);
-    while (WiFi.status() != WL_CONNECTED) {
-        Serial.println("Connecting ...");
-    delay(500);
-    }
-    Serial.println("Connected");  
-    // set rules for switching daylight saving to daylight times
-    ntp.ruleDST("IST", Last, Sat, Mar, 2, 180); // last sunday in march 2:00, timetone +180min (+2 GMT + 1h summertime offset)
-    ntp.ruleSTD("IDT", Last, Sun, Oct, 2, 120); // last sunday in october 3:00, timezone +120min (+2 GMT)
-//  ntp.ntpServer("ntp.ubuntu.com");
-    ntp.updateInterval(NTP_Update_Interval);
-    ntp.begin();
-    Serial.println("start NTP");
-    delay(NTP_Update_Interval);
-    while (!ntp.update()) {
-        Serial.println("Waiting for NTP update");
-        delay(5000);
-    }
-    char ntpdate[20],ntptime[20];
-    strcpy(ntpdate,ntp.formattedTime("%b %d %Y"));
-    Serial.print(ntpdate);
-    strcpy(ntptime,ntp.formattedTime("%H %M %S"));
-    Serial.print(ntptime);
-    settime = RtcDateTime(ntpdate, ntptime);
-    Serial.print("NTP: " );
-    printDateTime(settime);
-    Serial.println();
-#endif
+
     if (!Rtc.IsDateTimeValid()) 
     {
         if (Rtc.LastError() != 0)
@@ -119,10 +60,10 @@ void setup ()
             // following line sets the RTC to the date & time this sketch was compiled
             // it will also reset the valid flag internally unless the Rtc device is
             // having an issue
+
+            Rtc.SetDateTime(compiled);
         }
     }
-    else
-        Serial.println("Rerun with COMPILE_TIME_SETUP enabled");
 
     if (!Rtc.GetIsRunning())
     {
@@ -130,24 +71,21 @@ void setup ()
         Rtc.SetIsRunning(true);
     }
 
-
     RtcDateTime now = Rtc.GetDateTime();
-#if defined(COMPILE_TIME_SETUP) || defined(NTP_TIME_SETUP)
-    if (now < settime) 
+    if (now < compiled) 
     {
         Serial.println("RTC is older than compile time!  (Updating DateTime)");
-        Rtc.SetDateTime(settime);
+        Rtc.SetDateTime(compiled);
     }
-    else if (now > settime) 
+    else if (now > compiled) 
     {
         Serial.println("RTC is newer than compile time. (this is expected)");
-        Rtc.SetDateTime(settime);
     }
-    else if (now == settime) 
+    else if (now == compiled) 
     {
         Serial.println("RTC is the same as compile time! (not expected but all is fine)");
     }
-#endif
+
     // never assume the Rtc was last configured by you, so
     // just clear them to your needed state
     Rtc.Enable32kHzPin(false);
@@ -184,7 +122,7 @@ void loop ()
     // Serial.print(temp.AsFloatDegC());
     Serial.println("C");
 
-    delay(2000); // ten seconds
+    delay(10000); // ten seconds
 }
 
 #define countof(a) (sizeof(a) / sizeof(a[0]))
@@ -204,3 +142,4 @@ void printDateTime(const RtcDateTime& dt)
             dt.Second() );
     Serial.print(datestring);
 }
+
