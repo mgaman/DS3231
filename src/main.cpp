@@ -52,6 +52,7 @@ NTP ntp(wifiUdp);
 #endif
 
 void printDateTime(const RtcDateTime& dt);  
+char ntpdate[20],ntptime[20];
 
 void setup () 
 {
@@ -65,10 +66,9 @@ void setup ()
     Rtc.Begin();
     RtcDateTime settime;
 #ifdef COMPILE_TIME_SETUP
-    settime = RtcDateTime(__DATE__, __TIME__);
+    strcpy(ntpdate,__DATE__);
+    strcpy(ntptime,__TIME__);
     Serial.print("Compile: " );
-    printDateTime(settime);
-    Serial.println();
 #elif defined(NTP_TIME_SETUP)
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) {
@@ -88,13 +88,12 @@ void setup ()
         Serial.println("Waiting for NTP update");
         delay(5000);
     }
-    char ntpdate[20],ntptime[20];
     strcpy(ntpdate,ntp.formattedTime("%b %d %Y"));
-    Serial.print(ntpdate);
     strcpy(ntptime,ntp.formattedTime("%H %M %S"));
-    Serial.print(ntptime);
-    settime = RtcDateTime(ntpdate, ntptime);
     Serial.print("NTP: " );
+#endif
+#if defined(COMPILE_TIME_SETUP) || defined(NTP_TIME_SETUP)
+    settime = RtcDateTime(ntpdate, ntptime);
     printDateTime(settime);
     Serial.println();
 #endif
@@ -120,9 +119,8 @@ void setup ()
             // it will also reset the valid flag internally unless the Rtc device is
             // having an issue
         }
+        Serial.println("Recompile with COMPILE_TIME_SETUP or NTP_TIME_SETUP enabled");
     }
-    else
-        Serial.println("Rerun with COMPILE_TIME_SETUP enabled");
 
     if (!Rtc.GetIsRunning())
     {
@@ -131,8 +129,8 @@ void setup ()
     }
 
 
-    RtcDateTime now = Rtc.GetDateTime();
 #if defined(COMPILE_TIME_SETUP) || defined(NTP_TIME_SETUP)
+    RtcDateTime now = Rtc.GetDateTime();
     if (now < settime) 
     {
         Serial.println("RTC is older than compile time!  (Updating DateTime)");
