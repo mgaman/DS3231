@@ -10,4 +10,4 @@ At the top of the source file are 2 define's. The user must enable (uncomment) j
 * If NTP_TIME_SETUP is uncommented, the DS3231 is initialized to the actual time the code is executed.
 Should you choose NTP_TIME_SETUP then you have to modify the lines setting the Daylight Saving Time rules see https://github.com/sstaub/NTP
 ### IDE ###
-This project was developed on **PlatformIO**, a plugin for **Visual Studio Code**. Therefore the source file has the cpp suffice. For using with the Arduino IDE rename the **main.cpp** file to **<projectname>.ino**
+This project was developed on **PlatformIO**, a plugin for **Visual Studio Code**. Therefore the source file has the cpp suffice. For using with the Arduino IDE rename the **main.cpp** file to **&lt;projectname&gt;.ino**
