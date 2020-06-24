@@ -1,0 +1,34 @@
+{
+	"folders": [
+		{
+			"path": "../../FirstBlink"
+		},
+		{
+			"name": "OpenScanTest",
+			"path": "../../OpenScanTest"
+		},
+		{
+			"name": "SerialCopy",
+			"path": "../../SerialCopy"
+		},
+		{
+			"name": "DS3231",
+			"path": ".."
+		},
+		{
+			"name": "Wifi_NTP",
+			"path": "../../Wifi_NTP"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"array": "cpp",
+			"deque": "cpp",
+			"list": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"vector": "cpp",
+			"initializer_list": "cpp"
+		}
+	}
+}
