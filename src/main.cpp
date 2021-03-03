@@ -6,9 +6,10 @@
 */
 #include <Arduino.h>
 
-// Choose just 1 or none of the 2 below
+// Choose just 1 or none of the 2 below.
+// If none, do not initialize and just print date/time
 //#define COMPILE_TIME_SETUP  // uncomment if initializing from compilation time
-//#define NTP_TIME_SETUP // uncomment to initialize from NTP server
+#define NTP_TIME_SETUP // uncomment to initialize from NTP server
 
 #if defined(COMPILE_TIME_SETUP) && defined(NTP_TIME_SETUP)
 #error Cannot use both kinds of initialize
@@ -48,8 +49,9 @@ RtcDS3231<TwoWire> Rtc(Wire);
 #include "WiFiUdp.h"
 #include "NTP.h"
 
-char ssid[]     = "******";
-char password[] = "********";
+char ssid[]     = "henry";
+char password[] = "9876543210";
+char ntpserver[] = "ntp.ubuntu.com";
 
 #define NTP_Update_Interval 5000  // msec
 WiFiUDP wifiUdp;
@@ -62,7 +64,7 @@ char ntpdate[20],ntptime[20];
 
 void setup () 
 {
-    Serial.begin(57600);
+    Serial.begin(115200);
 
     //--------RTC SETUP ------------
     // if you are using ESP-01 then uncomment the line below to reset the pins to
@@ -85,7 +87,7 @@ void setup ()
     // set rules for switching daylight saving to daylight times
     ntp.ruleDST("IST", Last, Sat, Mar, 2, 180); // last sunday in march 2:00, timetone +180min (+2 GMT + 1h summertime offset)
     ntp.ruleSTD("IDT", Last, Sun, Oct, 2, 120); // last sunday in october 3:00, timezone +120min (+2 GMT)
-//  ntp.ntpServer("ntp.ubuntu.com");
+    ntp.ntpServer(ntpserver);
     ntp.updateInterval(NTP_Update_Interval);
     ntp.begin();
     Serial.println("start NTP");
@@ -195,7 +197,7 @@ void loop ()
 
 void printDateTime(const RtcDateTime& dt)
 {
-    char datestring[20];
+    char datestring[24];
 
     snprintf_P(datestring, 
             countof(datestring),

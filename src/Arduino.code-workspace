@@ -29,6 +29,7 @@
 			"unordered_map": "cpp",
 			"vector": "cpp",
 			"initializer_list": "cpp"
-		}
+		},
+		"python.pythonPath": "/usr/bin/python3.7"
 	}
 }
